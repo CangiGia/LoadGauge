@@ -8,6 +8,7 @@ Author: Giacomo Cangi
 
 import numpy as np
 import matplotlib.pyplot as plt
+import ansys.dpf.core as dpf
 
 print("\n\t... all packages correctly imported ... \n")
 
@@ -22,4 +23,20 @@ class Murammim:
 monoaxial_strain_gauge = StrainGauge()
 reconstructor = Murammim()
 
+#// FE model navigation ...
+model = dpf.Model(r"src_from_nCODE\cantilever_beam.rst")
+metadata = model.metadata
+print(metadata.time_freq_support)
+
+# model.plot() #// ...plot the model and its mesh without any results
+
+# print(model)
+
+# mesh = model.metadata.meshed_region
+# displacement_operator = model.results.displacement()
+# fc_out = displacement_operator.outputs.fields_container()
+# mesh.plot(fc_out)
+
+# # node_list = [579, 897, 2499]
+# node = 579
 print("\t--> works until here <-- \n")
