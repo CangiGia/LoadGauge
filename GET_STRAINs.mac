@@ -1,0 +1,109 @@
+!	********************************************************************************
+!	*                                                    MACRO DESCRIPTION                                                 *
+!	********************************************************************************
+!
+!	PURPOSE::
+!	This macro extracts elastic strain data (X, Y, Z, and equivalent) for a
+!	pre-defined set of nodes over all time steps (result sets) of an analysis.
+!	It then writes this data into a clean text file for easy review or post-processing.
+!
+!	--------------------------------------------------------------------------------
+!	USER INPUT::
+!	The user must specify the name of the Component (Named Selection) that
+!	contains the nodes of interest. This is done by changing "SG1" in the
+!	'cmsel' command line below.
+!
+!	--------------------------------------------------------------------------------
+!	WORKFLOW::
+!	1.  NODE SELECTION:: The macro begins by selecting the user-defined Component
+!	    of nodes in the /PREP7 processor.
+!
+!	2.  INITIALIZATION:: In /POST1, it retrieves and stores two key pieces of
+!	    information:
+!	      a) A list of all node IDs within the selected Component.
+!	      b) The total number of result sets (time steps) available in the
+!	         currently loaded results file.
+!
+!	3.  FILE PREPARATION:: It creates a new text file named 'OUT_STRAINs.txt'
+!	    and writes a formatted header row to define the data columns.
+!
+!	4.  DATA EXTRACTION:: The core of the macro is a nested loop structure:
+!	      - The OUTER LOOP iterates through each time step of the simulation.
+!	      - The INNER LOOP iterates through each node ID stored in the list.
+!
+!	5.  DATA RETRIEVAL & WRITING:: For each node at each time step, the macro
+!	    retrieves the four specified strain components (EPEL,X/Y/Z/EQV) and
+!	    writes the data (TimeStep, NodeID, Strains) as a new line in the
+!	    output file.
+!
+!	--------------------------------------------------------------------------------
+!	OUTPUT::
+!	A text file named 'OUT_STRAINs.txt' is generated in the current working
+!	directory. The file contains a well-formatted table of nodal strain
+!	values, organized by time step.
+!
+!	********************************************************************************
+
+alls
+
+/PREP7 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+! selecting the component (Named Selection) containing the nodes of interest.
+! replace "SG1" with the actual name of your component.
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cmsel, s, SG1
+
+/POST1
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+! getting the list of nodes from the selected component 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*GET,_NDISP,node,,COUNT     	! getting the nodes number contained in the SG1 named selection, see "help, *get" for more options
+*STATUS,_NDISP                   	! video printing of the _NDISP scalar value, macro will continue indipendently
+
+*DIM,N_LIST,ARRAY,_NDISP     		! creating a N_LIST array based on the value of _NDISP parameter
+*VGET, N_LIST(1), node, 0, NLIST 	! replace the above loop - these two ways provide the same result
+*STATUS,N_LIST     							! video printing of the N_LIST matrix
+
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+! getting the total value of time steps  
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*GET, T_STEPS, ACTIVE, 0, SET, NSET      	! getting the number of time steps used in the simulation
+*STATUS,T_STEPS      									! video printing of the T_STEPS value
+
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+! opening file and starting to compile it
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*CFOPEN,'OUT_STRAINs','txt'
+*VWRITE,'TimeStep','NodeID','Strain_X','Strain_Y','Strain_Z','Strain_EQV'
+(A12, A15, A20, A20, A20, A20)
+*VWRITE,''
+(A)
+
+!! starting extraction
+!! **********
+*DO, i_step, 1, T_STEPS     ! loop through all time/load steps
+	SET, i_step
+	*DO, j_node, 1, _NDISP     	! loop trhough all the nodes
+		current_node = N_LIST(j_node)
+
+		*GET, strain_x,   NODE, current_node, EPEL, X
+		*GET, strain_y,   NODE, current_node, EPEL, Y
+		*GET, strain_z,   NODE, current_node, EPEL, Z
+		*GET, strain_eqv, NODE, current_node, EPEL, EQV
+
+		*VWRITE, i_step, current_node, strain_x, strain_y, strain_z, strain_eqv
+		(F12.0, F15.0, E20.6, E20.6, E20.6, E20.6)
+*ENDDO
+
+*IF, i_step, LT, T_STEPS, THEN    ! printing a space between each simulation time step
+*VWRITE,''
+(A)
+*ENDIF
+
+*ENDDO
+!! **********
+!! end extraction
+
+*CFCLOS 
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FINISH
