@@ -3,7 +3,7 @@ import scipy.interpolate as interp
 import matplotlib.pyplot as plt
 
 
-def psd_to_time_python(freq, psd, t_max, dt, seed=None):
+def psd2time(freq, psd, t_max, dt, seed=None):
     """
     Genera un time-history da una PSD unilaterale definita su freq.
 
@@ -69,7 +69,7 @@ t_max = 20.0
 f_max = freq.max()
 dt = 1.0 / (20 * f_max)
 
-t, x = psd_to_time_python(freq,psd_values,t_max,dt,seed=42,)
+t, x = psd2time(freq,psd_values,t_max,dt,seed=42,)
 
 rms_theoretical = np.sqrt(np.trapz(psd_values, freq))
 rms_effective = np.sqrt(np.mean(x**2))
@@ -80,7 +80,7 @@ x *= scale_factor
 plt.figure()
 plt.plot(freq, psd_values, label="PSD input")
 plt.xlabel("Frequency (Hz)")
-plt.ylabel("PSD (²/Hz)")
+plt.ylabel("PSD (N²/Hz)")
 plt.grid(True)
 plt.legend()
 plt.show()
@@ -94,7 +94,4 @@ plt.show()
 
 # Salvataggio del segnale in file TXT.
 data_out = np.column_stack((t, x))
-np.savetxt("signal_python.txt",data_out,delimiter="\t",fmt="%.6f",)
-
-
-
+# np.savetxt("signal_python.txt",data_out,delimiter="\t",fmt="%.6f",)

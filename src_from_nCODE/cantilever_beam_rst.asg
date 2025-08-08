@@ -1,5 +1,0 @@
-<StrainGauges>
-<StrainGauge ID="Gauge1" Type="Rectangular" Location="579" AngleOffset="10" Orientation="1,0,0" ResultsFrom="OneSurface" LocationType="Node" ShellSurface="Top"/>
-<StrainGauge ID="Gauge2" Type="Rectangular" Location="897" AngleOffset="30" Orientation="1,0,0" ResultsFrom="OneSurface" LocationType="Node" ShellSurface="Top"/>
-<StrainGauge ID="Gauge3" Type="Rectangular" Location="2499" AngleOffset="45" Orientation="1,0,0" ResultsFrom="OneSurface" LocationType="Node" ShellSurface="Top"/>
-</StrainGauges>
