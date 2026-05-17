@@ -39,21 +39,20 @@ def check_stm(stm: STM, cond_threshold: float = 1e3) -> dict:
 
     Returns
     -------
-    dict
-        cond : float
-            Condition number of ``stm.matrix``.
-        singular_values : NDArray
-            Singular values in descending order.
-        numerical_rank : int
-            Number of non-negligible singular values.
-        n_strain : int
-            Number of strain channels (rows).
-        n_loads : int
-            Number of load components (columns).
-        usable : bool
-            ``True`` only when all three checks pass.
-        reason : str
-            Human-readable verdict: ``"OK"`` or a description of the failure.
+    cond : float
+        Condition number of ``stm.matrix``.
+    singular_values : NDArray
+        Singular values in descending order.
+    numerical_rank : int
+        Number of non-negligible singular values.
+    n_strain : int
+        Number of strain channels (rows).
+    n_loads : int
+        Number of load components (columns).
+    usable : bool
+        ``True`` only when all three checks pass.
+    reason : str
+        Human-readable verdict: ``"OK"`` or a description of the failure.
     """
     diag = linalg.condition_report(stm.matrix)
     m, n = stm.n_strain, stm.n_loads
